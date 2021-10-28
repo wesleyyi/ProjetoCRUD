@@ -18,6 +18,7 @@ namespace SeliaProj
         public String id_empresa = "";
         public String id_endereco = "";
         public String erro = "";
+        public String mensagem = "";
 
         public FuncionalidadesJson(CadastroRecebido Arquivo, EnderecoViaCep endereco)
         {
@@ -56,6 +57,105 @@ namespace SeliaProj
                 {
                     //Caso ja tenha o cnpj apenas pega o id da empresa
                     this.id_empresa = cmd.ExecuteScalar().ToString();
+                }
+                //Desconecta do banco
+                conexao.Desconectar();
+
+            }
+            catch
+            {
+                this.erro = "Falha na Conexão";
+            }
+            #endregion
+
+            #region CEP
+
+            cmd.CommandText = "select cep from endereco where replace(cep,'-','') = replace(@Cep,'-','')";
+            //Parametros
+            cmd.Parameters.AddWithValue("@Cep", Arquivo.cep.ToString());
+
+            try
+            {
+                //Conexão com banco
+                cmd.Connection = conexao.Conectar();
+                //Chamada do banco
+                if (cmd.ExecuteScalar() == null)
+                {
+                    cmd.CommandText = "insert endereco(cep,rua,bairro,cidade,estado) values(@CepViaCep,@RuaViaCep,@BairroViaCep,@CidadeViaCep,@EstadoViaCep)";
+                    //Parametros
+                    
+                    cmd.Parameters.AddWithValue("@CepViaCep", endereco.cep.ToString());
+                    cmd.Parameters.AddWithValue("@RuaViaCep", endereco.logradouro.ToString());
+                    cmd.Parameters.AddWithValue("@BairroViaCep", endereco.bairro.ToString());
+                    cmd.Parameters.AddWithValue("@CidadeViaCep", endereco.localidade.ToString());
+                    cmd.Parameters.AddWithValue("@EstadoViaCep", endereco.uf.ToString());
+
+                    try
+                    {
+                        cmd.Connection = conexao.Conectar();
+
+                        //Salva o novo endereço no banco
+                        cmd.ExecuteNonQuery();
+
+                        this.id_endereco = endereco.cep.ToString();
+                    }
+                    catch
+                    {
+                        this.erro = "Falha na Conexão";
+                    }
+                }
+                else
+                {
+                    //Caso ja tenha o cnpj apenas pega o id da empresa
+                    this.id_endereco = endereco.cep.ToString();
+                }
+                //Desconecta do banco
+                conexao.Desconectar();
+
+            }
+            catch
+            {
+                this.erro = "Falha na Conexão";
+            }
+            #endregion
+
+            #region Funcionário
+            cmd.CommandText = "select id from funcionario where REPLACE(REPLACE(cpf,'.',''),'-','') = REPLACE(REPLACE(@CpfJson,'.',''),'-','')";
+            //Parametros
+            cmd.Parameters.AddWithValue("@CpfJson", Arquivo.cpf.ToString());
+
+            try
+            {
+                //Conexão com banco
+                cmd.Connection = conexao.Conectar();
+                //Chamada do banco
+                if (cmd.ExecuteScalar() == null)
+                {
+                    cmd.CommandText = "insert funcionario(nome,cpf,salario,empresa,endereco) values(@NomeJson,@CpfJson,@SalarioJson,@EmpresaJson, @EnderecoJson)";
+                    //Parametros
+                    cmd.Parameters.AddWithValue("@NomeJson", Arquivo.nome.ToString());
+                    cmd.Parameters.AddWithValue("@SalarioJson", Arquivo.salario.ToString());
+                    cmd.Parameters.AddWithValue("@EmpresaJson", Int32.Parse(this.id_empresa));
+                    cmd.Parameters.AddWithValue("@EnderecoJson", this.id_endereco.ToString());
+
+                    try
+                    {
+                        cmd.Connection = conexao.Conectar();
+
+                        //Salva  o funcionário
+                        cmd.ExecuteNonQuery();
+                        this.mensagem = "code 201";
+                        
+                    }
+                    catch
+                    {
+                        this.erro = "Falha na Conexão";
+                    }
+                }
+                else
+                {
+                    //Caso ja tenha o cnpj apenas pega o id da empresa
+                    this.erro = "CPF Duplicado";
                 }
                 //Desconecta do banco
                 conexao.Desconectar();

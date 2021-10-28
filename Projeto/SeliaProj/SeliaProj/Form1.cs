@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -21,7 +22,9 @@ namespace SeliaProj
         {
             InitializeComponent();
         }
+        //Caminho do Arquivo Json
 
+        public string ArquivoJson = "";
         private void button1_Click(object sender, EventArgs e)
         {
             //Envia os dados de login para validação
@@ -36,10 +39,15 @@ namespace SeliaProj
             {
                 MessageBox.Show(login.mensagem);
             }
+            //Verifica se o Json foi anexado
+            else if (this.ArquivoJson == "")
+            {
+                MessageBox.Show("Por favor realizar Upload do Json");
+            }
             else 
             {
                 //Pega o json anexado
-                var json = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + @"..\..\ArqExemplo.json");
+                var json = this.ArquivoJson;
                 
                 //Lê o json e transforma em objeto
                 var js = new DataContractJsonSerializer(typeof(List<CadastroRecebido>));
@@ -66,12 +74,51 @@ namespace SeliaProj
                     //Chama o método que fazer as validações e girar o mecanismo do sistema
                     FuncionalidadesJson funcionalidades = new FuncionalidadesJson(cad, endereco);
 
+                    if (funcionalidades.erro != "") {
+                        MessageBox.Show("O erro " + funcionalidades.erro + " ocorreu com o funcionário " + cad.nome.ToString());
+                    }
+                    else if (funcionalidades.mensagem == "code 201") {
+                        MessageBox.Show("O funcionário " + cad.nome.ToString() + " foi importado com sucesso");
+                    }
+
+
                 }
                 
             }
         }
 
         private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtbLogin_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            //Pega o Json anexado
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Arquivo Json | *.json";
+            ofd.ShowDialog();
+            if (string.IsNullOrEmpty(ofd.FileName) == false) 
+            { 
+                try
+                {
+                    this.ArquivoJson = File.ReadAllText(ofd.FileName);
+                    MessageBox.Show("Upload Json com sucesso");
+                }
+                catch
+                {
+                    MessageBox.Show("Não foi possível abrir o seu arquivo");
+                }
+            }
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
         {
 
         }
