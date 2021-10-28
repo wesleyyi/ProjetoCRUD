@@ -1,6 +1,6 @@
 /***Inicialização do projeto
 
-Para iniciar o projeto é necessário restaurar o banco de dados que se encontra no caminho "\ProjSE\BD\Backup" ou executar os scripts que estão na pasta "\ProjSE\BD\Scripts" na sequencia numerada ambas no microsoft sql server management studio.
+Para iniciar o projeto é necessário restaurar o banco de dados que se encontra no caminho "\ProjSE\BD" ou executar os scripts que estão na pasta "\ProjSE\BD\Scripts" na sequencia numerada ambas no microsoft sql server management studio.
 
 O segundo passo é entrar na classe do projeto chamada “Conexao.cs” na linha 14 e alterar a “ConnectionString” de acordo com suas credencias do banco.
 
